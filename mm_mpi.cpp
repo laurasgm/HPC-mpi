@@ -92,22 +92,7 @@ int main (int argc, char **argv)
       exit(1);
   }
 
-  int rank, size;
-  MPI_Init(&argc, &argv);
-
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-  
-
-  if(rank == 0){ // ESTE ES EL NODO MASTER
-
-  
-
-  }
-
-  MPI_Finalize();
-
+  //Paso de csv a matriz operable 
   for (int i=0; i<TAM; i++){
       for (int j=0; j<TAM; j++){
           archivo >> *(*(m1+i)+j);
@@ -115,8 +100,37 @@ int main (int argc, char **argv)
       }
   }
 
+  int rank, size;
+  MPI_Init(&argc, &argv);
+
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   
+  //PARCEEE EL i VA A FUNCIONAR IDENTIFICADOR DE WN Y AL MISMO TIEMPO DE FILA EN LA QUE VA A TRABAJAR, REVISE LA IMAGEN DEL TABLERO EN EL REPOSITORIO PARA ENTENDER MEJOR 
+  if(rank == 0){ // ESTE ES EL NODO MASTER
+
+    //for (int i=1; i<TAM; i++){
+      //MPI_Send(i,1,MPI_INT,i,0,MPI_COMM_WORLD);
+    //}
+
+
+    for (int j=0; j<TAM; j++){
+      for(int k=0; k<TAM; k++){
+        *(*(r+0)+j) += *(*(m1+0)+k)  * *(*(m2+j)+k);//transpuesta
+      }
+      archivo3 << *(*(r+0)+j);
+      archivo3 <<' ';
+    }
+    archivo3 <<'\n';
+  }
+
+  MPI_Finalize();
+
+  
+
+
+ /* 
   for(int i=0; i<TAM; i++){
   for(int j=0; j<TAM; j++){
       *(*(r+i)+j) = 0;
@@ -130,7 +144,7 @@ int main (int argc, char **argv)
     archivo3 <<'\n';
   }
   
-  
+  */
 
   imprimir_matrices(TAM);
 
