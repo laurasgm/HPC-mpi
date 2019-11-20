@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include <string>
-#include <vector>
 #include <fstream>
 #include "timer.hh"
+#include <mpi.h>
 
 using namespace std;
+
+//mpic++ -o mpi mm_mpi.cpp COMO COMPILAR CON MPI EJEMPLO
+//https://www.youtube.com/watch?v=x8t5nStMpGE video mpi 
 
 int **m1;
 int **m2;
@@ -69,12 +71,13 @@ int main (int argc, char **argv)
     r[i]= new int[TAM];//reservando memoria para las columnas
   }
 
-  
+  //http://www.cplusplus.com/forum/beginner/38349/
   ifstream archivo,archivo2;
-  string prueba;
+  ofstream archivo3;//nos servira de prueba para saber si las multi estan bien hechas
 
-  archivo.open("data//m1_100.csv",ios::in);
-  archivo2.open("data//m2_100.csv",ios::in);
+  archivo.open("data//m1_4.csv",ios::in);// matriz 1
+  archivo2.open("data//m2_4.csv",ios::in);//matriz 2
+  archivo3.open("result.csv",ios::out);// resultado prueba 
 
   if (archivo.fail()){
         cout<< "No se encuentra el archivo";
@@ -84,8 +87,26 @@ int main (int argc, char **argv)
       cout<< "No se encuentra el archivo";
       exit(1);
   }
+  if (archivo3.fail()){
+      cout<< "Problema con el archivo3";
+      exit(1);
+  }
 
+  int rank, size;
+  MPI_Init(&argc, &argv);
 
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  
+
+  if(rank == 0){ // ESTE ES EL NODO MASTER
+
+  
+
+  }
+
+  MPI_Finalize();
 
   for (int i=0; i<TAM; i++){
       for (int j=0; j<TAM; j++){
@@ -94,21 +115,26 @@ int main (int argc, char **argv)
       }
   }
 
-/*
-  while(!archivo.eof()){
-     for(int i=0; i<TAM; i++){
-      for(int j=0; j<TAM; j++){
-          *(*(r+i)+j) = 0;
-          for(int k=0; k<TAM; k++){
-                *(*(r+i)+j) += *(*(m1+i)+k)  * *(*(m2+k)+j) ;
-          }
+
+  
+  for(int i=0; i<TAM; i++){
+  for(int j=0; j<TAM; j++){
+      *(*(r+i)+j) = 0;
+      for(int k=0; k<TAM; k++){
+            *(*(r+i)+j) += *(*(m1+i)+k)  * *(*(m2+j)+k);//transpuesta 
+            
       }
+      archivo3 << *(*(r+i)+j);
+      archivo3 <<' ';
+    }
+    archivo3 <<'\n';
   }
-  }
-*/
+  
+  
+
   imprimir_matrices(TAM);
 
-  //imprimir_secuencial(TAM);
+  imprimir_secuencial(TAM);
 
 
 

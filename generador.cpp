@@ -3,6 +3,12 @@
 #include <iostream>
 #include <fstream>
 
+/*La idea es que este codigo me sirva para generar las dos matrices de los tamaños que yo desee
+    para la posterior multiplicacion de estas, guardarlas en archivos .csv y guardarlos en la 
+    carpeta /data... Solo es compilar con el tamaño deseado de esta manera ./mpi 100 por ejemplo
+    ahora bien, recuerde cambiar abajo en los ciclos el nombre de los archivos. 
+    Igual ahi abajo le recuerdo donde es :)*/
+
 using namespace std;
 
 int **m1;
@@ -50,8 +56,8 @@ int main(int argc, char **argv){
 
 
     //recordar cambiar el nombre del archivo depende de las matrices que vayamos a guardar
-    archivo.open("data//m1_100.csv",ios::out);
-    archivo2.open("data//m2_100.csv",ios::out);
+    archivo.open("data//m1_4.csv",ios::out);
+    archivo2.open("data//m2_4.csv",ios::out);
     if (archivo.fail()){
         cout<< "No se pudo abrir el archivo";
         exit(1);
@@ -64,9 +70,9 @@ int main(int argc, char **argv){
      for (int i=0; i<TAM; i++){
       for (int j=0; j<TAM; j++){
           archivo<< *(*(m1+i)+j);
-          archivo<<',';
+          archivo<<' ';
           archivo2 << *(*(m2+i)+j);
-          archivo2<<',';
+          archivo2<<' ';
       }
       archivo<<'\n';
       archivo2<<'\n';
