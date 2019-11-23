@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
-#include "timer.hh"
 #include <mpi.h>
 
 using namespace std;
@@ -78,8 +77,8 @@ int main (int argc, char **argv)
   ifstream archivo,archivo2;
   ofstream archivo3;//nos servira de prueba para saber si las multi estan bien hechas
 
-  archivo.open("data//m1_1000.csv",ios::in);// matriz 1
-  archivo2.open("data//m2_1000.csv",ios::in);//matriz 2
+  archivo.open("data//m1_100.csv",ios::in);// matriz 1
+  archivo2.open("data//m2_100.csv",ios::in);//matriz 2
   archivo3.open("result.csv",ios::out);// resultado prueba 
 
   if (archivo.fail()){
@@ -107,7 +106,9 @@ int main (int argc, char **argv)
   int rank, size;
   int i,j,k;
   MPI_Status status;
-
+  double end,start;
+  double mytime,   /*variables used for gathering timing statistics*/
+           maxtime;
   
 
   MPI_Init(&argc, &argv);
@@ -115,15 +116,16 @@ int main (int argc, char **argv)
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+  MPI_Barrier(MPI_COMM_WORLD);
+  
   //PARCEEE EL i VA A FUNCIONAR IDENTIFICADOR DE WorkerNode Y AL MISMO TIEMPO DE FILA EN LA QUE VA A TRABAJAR, REVISE LA IMAGEN DEL TABLERO EN EL REPOSITORIO PARA ENTENDER MEJOR 
   if(rank == 0){ // ESTE ES EL NODO MASTER
-    ScopedTimer p;
-
+    start = MPI_Wtime();
     //cout<<"estoy en master"<<endl;
     for (i=1; i<TAM; i++){
       MPI_Send(&i,1,MPI_INT,i,0,MPI_COMM_WORLD);//envio info a WN sobre i 
     }
-
+    MPI_Barrier(MPI_COMM_WORLD);
 
     for (j=0; j<TAM; j++){
       for(k=0; k<TAM; k++){
@@ -133,9 +135,9 @@ int main (int argc, char **argv)
       //archivo3 <<' ';
     }
    // archivo3 << endl;
-   cout<<TAM<<","<<p.elapsed()/1e+6<<endl;
-
-  MPI_Barrier(MPI_COMM_WORLD);//acoplamiento de paralizacion
+  
+  end = MPI_Wtime();
+  //cout<<TAM<<","<<end-start<<endl;
   }else{// ESTOS SON LOS WORKERs
     
     //cout<<"estoy en el worker "<<rank<<endl;
@@ -150,13 +152,20 @@ int main (int argc, char **argv)
       
     }
     //archivo3 <<endl;
-
     MPI_Barrier(MPI_COMM_WORLD);
   }
 
-
+  
+  MPI_Reduce(&end, &maxtime, 1, MPI_DOUBLE,MPI_MAX, 0, MPI_COMM_WORLD);
   MPI_Finalize();
-
+  //double global = MPI_WTIME_IS_GLOBAL;
+  if(rank == 0){
+    //cout<<TAM<<","<<end-start<<endl;
+    //cout<<TAM<<","<<maxtime<<endl;
+    
+    cout<<TAM<<","<<maxtime<<endl;
+    //cout<<"global "<< global;
+  }
   
 
   archivo.close();
