@@ -7,6 +7,8 @@
 
 using namespace std;
 
+
+// nfs https://debian-handbook.info/browse/es-ES/stable/sect.nfs-file-server.html
 //mpic++ -o mpi mm_mpi.cpp COMO COMPILAR CON MPI EJEMPLO
 //https://www.youtube.com/watch?v=x8t5nStMpGE video mpi 
 //https://lsi.ugr.es/jmantas/ppr/tutoriales/tutorial_mpi.php?tuto=comienzo_mpi COMO COMPILAR MPI
@@ -16,7 +18,7 @@ int **m2;
 int **r;
 
 void imprimir_matrices(int TAM){
-
+    cout<<endl;
     for (int i=0; i<TAM; i++){
 
         for (int j=0; j<TAM; j++){
@@ -76,8 +78,8 @@ int main (int argc, char **argv)
   ifstream archivo,archivo2;
   ofstream archivo3;//nos servira de prueba para saber si las multi estan bien hechas
 
-  archivo.open("data//m1_4.csv",ios::in);// matriz 1
-  archivo2.open("data//m2_4.csv",ios::in);//matriz 2
+  archivo.open("data//m1_1000.csv",ios::in);// matriz 1
+  archivo2.open("data//m2_1000.csv",ios::in);//matriz 2
   archivo3.open("result.csv",ios::out);// resultado prueba 
 
   if (archivo.fail()){
@@ -92,6 +94,7 @@ int main (int argc, char **argv)
       cout<< "Problema con el archivo3";
       exit(1);
   }
+  
 
   //Paso de csv a matriz operable 
   for (int i=0; i<TAM; i++){
@@ -104,15 +107,19 @@ int main (int argc, char **argv)
   int rank, size;
   int i,j,k;
   MPI_Status status;
+
+  
+
   MPI_Init(&argc, &argv);
 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  
   //PARCEEE EL i VA A FUNCIONAR IDENTIFICADOR DE WorkerNode Y AL MISMO TIEMPO DE FILA EN LA QUE VA A TRABAJAR, REVISE LA IMAGEN DEL TABLERO EN EL REPOSITORIO PARA ENTENDER MEJOR 
   if(rank == 0){ // ESTE ES EL NODO MASTER
+    ScopedTimer p;
 
+    //cout<<"estoy en master"<<endl;
     for (i=1; i<TAM; i++){
       MPI_Send(&i,1,MPI_INT,i,0,MPI_COMM_WORLD);//envio info a WN sobre i 
     }
@@ -122,35 +129,44 @@ int main (int argc, char **argv)
       for(k=0; k<TAM; k++){
         *(*(r+0)+j) += *(*(m1+0)+k)  * *(*(m2+j)+k);//transpuesta
       }
-      archivo3 << *(*(r+0)+j);
-      archivo3 <<' ';
+      //archivo3 << *(*(r+0)+j);
+      //archivo3 <<' ';
     }
-    archivo3 <<'\n';
+   // archivo3 << endl;
+   cout<<TAM<<","<<p.elapsed()/1e+6<<endl;
 
-    MPI_Barrier(MPI_COMM_WORLD);//acoplamiento de paralizacion
-  }if(rank > 0){// ESTOS SON LOS WORKERs
+  MPI_Barrier(MPI_COMM_WORLD);//acoplamiento de paralizacion
+  }else{// ESTOS SON LOS WORKERs
     
-  
+    //cout<<"estoy en el worker "<<rank<<endl;
     MPI_Recv(&i,1,MPI_INT,0,0,MPI_COMM_WORLD,&status);//recibimos la posicion de la fila que el WN trabajara
 
      for (j=0; j<TAM; j++){
       for(k=0; k<TAM; k++){
         *(*(r+i)+j) += *(*(m1+i)+k)  * *(*(m2+j)+k);//transpuesta
       }
-      archivo3 << *(*(r+i)+j);
-      archivo3 <<' ';
+      //archivo3 <<*(*(r+i)+j);
+      //archivo3 <<' ';
+      
     }
-    archivo3 <<'\n';
+    //archivo3 <<endl;
+
+    MPI_Barrier(MPI_COMM_WORLD);
   }
 
 
   MPI_Finalize();
-  
 
   
 
+  archivo.close();
+  archivo2.close();
+  archivo3.close();
+  //imprimir_matrices(TAM);
 
- /* 
+  //imprimir_secuencial(TAM);
+
+  /* 
   for(int i=0; i<TAM; i++){
   for(int j=0; j<TAM; j++){
       *(*(r+i)+j) = 0;
@@ -166,32 +182,4 @@ int main (int argc, char **argv)
   
   */
 
-  imprimir_matrices(TAM);
-
-  imprimir_secuencial(TAM);
-
-
-
-  /*
-  MPI_Init ( &argc, &argv );
-  MPI_Comm_rank ( MPI_COMM_WORLD, &p_id );
-  MPI_Comm_size ( MPI_COMM_WORLD, &p );
-  //este tiempo se toma con la libreria timer.hh
-  ScopedTimer p;
-
-  //multiplicacion 
-    for(int i=0; i<TAM; i++){
-      for(int j=0; j<TAM; j++){
-          *(*(r+i)+j) = 0;
-          for(int k=0; k<TAM; k++){
-                *(*(r+i)+j) += *(*(m1+i)+k)  * *(*(m2+k)+j) ;
-          }
-      }
-    }
-
-
-    cout<<TAM<<","<<p.elapsed()/1e+6<<endl;
-     MPI_Finalize();*/
-    //imprimir_matrices(TAM);
-    //imprimir_secuencial(TAM);
 }

@@ -2,9 +2,10 @@
 # My first script
 
 #compilamos con optimizacion
-g++ -O3 -o multi multi.cpp
+mpic++ -o mpi mm_mpi.cpp
 #datos_sec_op.txt
 
+mpiexec -n 4 -machinefile machinefile ./mpi 4
 
 #compilamos normal
 #g++ -o multi multi.cpp
