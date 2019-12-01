@@ -137,6 +137,7 @@ int main (int argc, char **argv)
    // archivo3 << endl;
   
   end = MPI_Wtime();
+  cout<<TAM<<","<<end-start<<endl;
   //cout<<TAM<<","<<end-start<<endl;
   }else{// ESTOS SON LOS WORKERs
     
@@ -156,14 +157,15 @@ int main (int argc, char **argv)
   }
 
   
-  MPI_Reduce(&end, &maxtime, 1, MPI_DOUBLE,MPI_MAX, 0, MPI_COMM_WORLD);
+  //MPI_Reduce(&end, &maxtime, 1, MPI_DOUBLE,MPI_MAX, 0, MPI_COMM_WORLD);
+  
   MPI_Finalize();
   //double global = MPI_WTIME_IS_GLOBAL;
   if(rank == 0){
-    //cout<<TAM<<","<<end-start<<endl;
+   // cout<<TAM<<","<<end-start<<endl;
     //cout<<TAM<<","<<maxtime<<endl;
     
-    cout<<TAM<<","<<maxtime<<endl;
+    //cout<<TAM<<","<<maxtime<<endl;
     //cout<<"global "<< global;
   }
   

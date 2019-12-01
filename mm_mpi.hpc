@@ -1,24 +1,13 @@
 #!/bin/bash
 # My first script
 
-#compilamos con optimizacion
+#compilamos 
 mpic++ -o mpi mm_mpi.cpp
-#datos_sec_op.txt
 
+#comando de ejecucion 
 mpiexec -n 4 -machinefile machinefile ./mpi 4
 
+#activar el nfs en los nodos 
+#recuerde instalar nfs en cada nodo para que funcione este comando mount, y haber creado la carpeta HPC-mpi en el nodo previamente
+#mas info en este video https://www.youtube.com/watch?v=Q-v3JifGo4U&t=744s
 sudo mount -t nfs head:/home/cluser/HPC-mpi HPC-mpi/
-
-
-#compilamos normal
-#g++ -o multi multi.cpp
-
-#ejecutamos
-#secuencial 100
-for i in $(seq 1 31); do
-	./secuencial 100 >> datos_sec_op.txt
-    ./secuencial 250 >> datos_sec_op.txt
-    ./secuencial 500 >> datos_sec_op.txt
-    ./secuencial 750 >> datos_sec_op.txt
-    ./secuencial 1000 >> datos_sec_op.txt
-done
