@@ -77,8 +77,8 @@ int main (int argc, char **argv)
   ifstream archivo,archivo2;
   ofstream archivo3;//nos servira de prueba para saber si las multi estan bien hechas
 
-  archivo.open("data//m1_100.csv",ios::in);// matriz 1
-  archivo2.open("data//m2_100.csv",ios::in);//matriz 2
+  archivo.open("data//m1_1000.csv",ios::in);// matriz 1
+  archivo2.open("data//m2_1000.csv",ios::in);//matriz 2
   archivo3.open("result.csv",ios::out);// resultado prueba 
 
   if (archivo.fail()){

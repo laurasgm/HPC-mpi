@@ -7,6 +7,9 @@ mpic++ -o mpi mm_mpi.cpp
 
 mpiexec -n 4 -machinefile machinefile ./mpi 4
 
+sudo mount -t nfs head:/home/cluser/HPC-mpi HPC-mpi/
+
+
 #compilamos normal
 #g++ -o multi multi.cpp
 
